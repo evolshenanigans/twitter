@@ -1,6 +1,6 @@
 const { GraphQLString, GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQLInt } = require('graphql')
 const { PostInputType, AnswerInputType } = require('./types')
-const { User, Quiz, Post, Submission } = require('../models')
+const { User, Post } = require('../models')
 const { createJwtToken } = require('../util/auth')
 
 
@@ -43,109 +43,23 @@ const login = {
     }
 }
 
-const createQuiz = {
+const createPost = {
     type: GraphQLString,
-    args: {
-        Post: { 
-            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(PostInputType)))
-        },
-        title: {
-            type: GraphQLString
-        },
-        description: {
-            type: GraphQLString
-        },
-        userId: {
-            type: GraphQLString
-        }
+    args : {
+        text: {type: GraphQLString},
+        photo: {type: GraphQLString},
+        userId: {type: GraphQLString}
     },
     async resolve(parent, args) {
-        /* Generate slug version of quiz for url */
-        let slugify = args.title.toLowerCase()
-            .replace(/[^\w ]+/g, '')
-            .replace(/ +/g, '-')
-        let fullSlug = ''
-
-        /* Add a random integer to the end of the slug, check that slug doesn't already exist.
-        *  If it does exist, generate new slug. Else continue.
-        */
-        while (true) {
-            let slugId = Math.floor(Math.random()*10000)
-            fullSlug = `${slugify}-${slugId}`
-
-            const existingQuiz = await Quiz.findOne({ slug: fullSlug })
-            
-            if (!existingQuiz)
-                break;
-        }
-
-        const quiz = new Quiz({
-            title: args.title,
-            slug: fullSlug,
-            description: args.description,
-            userId: args.userId
-        })
-
-        await quiz.save()
-
-        /* Create post types and connect to new quiz */
-        for (const post of args.Posts) {
-            const PostItem = new Post({
-                title: post.title,
-                correctAnswer: post.correctAnswer,
-                order: new Number(post.order),
-                quizId: quiz.id
-            })
-            PostItem.save()
-        }
-
-        return quiz.slug
-    }
-}
-
-const submitQuiz = {
-    type: GraphQLString,
-    args: {
-        answers: { 
-            type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(AnswerInputType)))
-        },
-        userId: {
-            type: GraphQLString
-        },
-        quizId: {
-            type: GraphQLString
-        }
-    },
-    async resolve(parent, args) {
-        try{
-        let correct = 0
-        let totalScore = args.answers.length
-
-        for (const answer of args.answers) {
-            const PostAnswer = await Post.findById(answer.PostId)
-
-            if (answer.answer.trim().toLowerCase() === PostAnswer.correctAnswer.trim().toLowerCase()) {
-                correct++
-            }
-        }
-
-        const score = (correct / totalScore) * 100
-
-        const submission = new Submission({
+        const post = new Post({
+            text: args.text,
+            photo: args.photo,
             userId: args.userId,
-            quizId: args.quizId,
-            score
+            createdDate: (new Date()).toString()
         })
-
-        submission.save()
-
-            return submission.id
-        }
-        catch(e) {
-            console.log(e)
-            return ''
-        }
+        await post.save()
+        return post.id
     }
 }
 
-module.exports = { register, login, createQuiz, submitQuiz }
+module.exports = {register, login, createPost}

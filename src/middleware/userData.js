@@ -8,42 +8,26 @@ const userData = async (req, res, next) => {
     }
 
     const query = `
-        query user($id: ID!) { 
-            user( id: $id ) {
+    query user($id: ID!) {
+        user( id: $id) {
+            id,
+            posts {
                 id,
-                quizzes {
+                userId,
+                text,
+                createdDate,
+                user{
                     id,
-                    slug,
-                    title,
-                    description,
-                    Posts {
-                        title,
-                        order,
-                        correctAnswer
-                    },
-                    submissions {
-                        score,
-                        userId
-                    },
-                    avgScore
-                },
-                submissions {
-                    id,
-                    userId,
-                    quizId,
-                    quiz {
-                        title,
-                        description
-                    },
-                    avgScore
+                    username
                 }
-            } 
-        }`
-    console.log(req.verifiedUser.user._id)
-    let data = {}
-    try {
-        data = await axios.post(process.env.GRAPHQL_ENDPOINT, 
-        { 
+            }
+        }
+    }`
+console.log(req.verifiedUser.user._id)
+let data = {}
+try {
+    data = await axios.post(process.env.GRAPHQL_ENDPOINT,
+        {
             query,
             variables: {
                 id: req.verifiedUser.user._id
@@ -51,17 +35,16 @@ const userData = async (req, res, next) => {
         },
         {
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type' : 'application/json'
             }
-        }); 
-    } catch(e) {
-        console.log(e)
-    }
+        });
+} catch(e){
+    e.response.data.errors.forEach( err => console.log(err.message, err.locations))
+}
 
-    req.verifiedUser.user.quizzes = data.data.data.user?.quizzes ?? []
-    req.verifiedUser.user.submissions = data.data.data.user?.submissions ?? []
-
-    next()
+req.verifiedUser.user.posts = data.data.data.user?.posts ?? []
+console.log(req.verifiedUser.user.posts)
+next()
 }
 
 module.exports = { userData }

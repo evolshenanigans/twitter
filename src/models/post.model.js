@@ -6,15 +6,7 @@ const PostSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        correctAnswer: {
-            type: String,
-            required: true
-        },
-        order: {
-            type: Number,
-            required: true
-        },
-        quizId: {
+        userId: {
             type: String,
             required: true
         }

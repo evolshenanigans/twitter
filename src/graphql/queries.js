@@ -1,46 +1,43 @@
-const { GraphQLList, GraphQLID, GraphQLString } = require('graphql');
-const { UserType, QuizType, SubmissionType } = require('./types');
-const { User, Quiz, Submission } = require('../models');
+const { GraphQLList, GraphQLID, GraphQLString } = require('graphql')
+const { UserType, PostType } = require('./types')
+const { User, Post } = require('../models')
 
 const users = {
-    type : new GraphQLList(UserType),
-    description : 'Query all users in the database',
-    resolve( parent, args) {
+    type: new GraphQLList(UserType),
+    description: 'Query all users in the database',
+    resolve(parent, args) {
         return User.find()
     }
 }
 
 const user = {
-    type : UserType,
-    description : 'Query user by id',
-    args:{
-        id: { type : GraphQLID }
+    type: UserType,
+    description: 'Query user by id',
+    args: {
+        id: {type: GraphQLID}
     },
-    resolve( parent, args) {
+    resolve(parent, args) {
         return User.findById(args.id)
     }
 }
-
-const quizBySlug = {
-    type : QuizType,
-    description: 'Query quiz by slug value',
+const post = {
+    type: PostType,
+    description: 'Query post by id',
     args: {
-        slug: {type: GraphQLString}
+        id: {type: GraphQLID}
     },
-    async resolve(parent, args) {
-        return Quiz.findOne({ slug: args.slug })
+    resolve(parent, args) {
+        return Post.findById(args.id)
+    }
+}
+const posts = {
+    type: new GraphQLList(PostType),
+    description: 'Query all posts by all users',
+    resolve(parent, args) {
+        return Post.find()
     }
 }
 
-const submissionById = {
-    type : SubmissionType,
-    description: 'Query quiz submissions by id',
-    args: {
-        id: { type: GraphQLString }
-    },
-    async resolve (parent, args) {
-        return Submission.findById(args.id)
-    }
-}
 
-module.exports = { users, user, quizBySlug, submissionById }
+
+module.exports = {users, user, post, posts}

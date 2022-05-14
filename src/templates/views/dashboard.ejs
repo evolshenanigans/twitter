@@ -1,38 +1,27 @@
 <%- include('../partials/header.ejs') %>
-
 <main class="container">
-    <h1 class="my-4">Quizly - Dashboard</h1>
-    <div class="d-flex justify-content-between align-items-center mt-5 mb-3">
-        <h2 class="my-2">Your Quizzes</h2>
-        <a href="/quiz/create" class="btn btn-primary">Create Quiz +</a>
+    <h1 class="my-4">Tweeta - Dashboard</h1>
+        <form method="POST" action="/post/create">
+            <div class="form-group">
+                <textarea class="form-control" id="exampleFormControlTextarea1" placeholder="What are you up to?" name = "text" rows="3"></textarea>
+                <button type="submit" class="btn btn-primary">Create Post</button>
+            </div>
+        </form>
+        
+    <div>
+        <h1>Posts</h1>
+        <hr>
+        <% posts.foreach((post) => { %>
+         
+            <div class="card" style="width: 36rem;">
+                <div class="card-body">
+            <p class="card-text"><%= post.text %> </p>
+            <a href="<%= post.photo %> " class="card-link">Photo</a>
+            <p class="card-link"><%= post.user.username %> </p>
+            </div>
+        </div>
+        <% }) %>
     </div>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th scope="col">Title</th>
-                <th scope="col">Submissions</th>
-                <th scope="col">Avg. Score</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% for (const quiz of user.quizzes) { %>
-                <tr>
-                    <td>
-                        <a href="/quiz/<%= quiz.slug %>"><strong><%= quiz.title %></strong></a>
-                        <br>
-                        <small><%= quiz.description %></small>
-                    </td>
-                    <td>
-                        <%= quiz.submissions.length %>
-                    </td>
-                    <td>
-                        <% if (quiz.avgScore) { %>
-                            <%= quiz.avgScore?.toFixed(2) %>%
-                        <% } %>
-                    </td>
-                </tr>
-            <% } %>
-        </tbody>
-    </table>
 </main>
-<%- include('../partials/footer.ejs') %>
+
+  <%- include('../partials/footer.ejs') %>

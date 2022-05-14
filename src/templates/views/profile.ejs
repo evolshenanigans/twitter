@@ -1,0 +1,12 @@
+<%- include('../partials/header.ejs') %>
+<% user.posts.forEach(post => { %>
+    <div class="card" style="width: 36rem;">
+        <div class="card-body">
+            <p class="card-text"><%= post.text %> </p>
+            <a href="<%= post.photo %> " class="card-link">Photo</a>
+            <p class = "card-link"><%= post.user.username %> </p>
+         </div>
+    </div>
+<% }) %> 
+
+<%- include('../partials/footer.ejs') %>
